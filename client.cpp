@@ -29,7 +29,18 @@ public:
         }
     }
 
-    void commands() const{
+    void receiveServerMessage() const {
+        char fileMessage[1024];
+        memset(fileMessage, 0, sizeof(fileMessage));
+        ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
+        if (bytes > 0) {
+            cout << fileMessage << endl;
+        } else {
+            cerr << "Failed to receive message from server." << endl;
+        }
+    }
+
+    void comman ds() const{
         cout << "Available commands:\n- GET <filename>\n- LIST\n- PUT <filename>\n- DELETE <filename>\n- INFO <filename>\n- EXIT" << endl;
 
         while (true) {
@@ -44,41 +55,9 @@ public:
             // Send command to the server
             send(clientSocket, command.c_str(), command.size(), 0);
 
-            if (command.find("GET ") == 0) {
-                char fileMessage[1024];
-                memset(fileMessage, 0, sizeof(fileMessage));
-                ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
-                if (bytes> 0) {
-                    cout << fileMessage << endl;
-                }
-            } else if (command == "LIST") {
-                char listMessage[1024];
-                memset(listMessage, 0, sizeof(listMessage));
-                ssize_t bytes = recv(clientSocket, listMessage, sizeof(listMessage), 0);
-                if (bytes > 0) {
-                    cout << "A list of files in the server directory:" << listMessage << endl;
-                }
-            } else if (command.find("PUT ") == 0) {
-                char fileMessage[1024];
-                memset(fileMessage, 0, sizeof(fileMessage));
-                ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
-                if (bytes> 0) {
-                    cout << fileMessage << endl;
-                }
-            } else if (command.find("DELETE ") == 0) {
-                char fileMessage[1024];
-                memset(fileMessage, 0, sizeof(fileMessage));
-                ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
-                if (bytes> 0) {
-                    cout << fileMessage << endl;
-                }
-            } else if (command.find("INFO ") == 0) {
-                char fileMessage[1024];
-                memset(fileMessage, 0, sizeof(fileMessage));
-                ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
-                if (bytes> 0) {
-                    cout << fileMessage << endl;
-                }
+            if (command.find("GET ") == 0 || command == "LIST" || command.find("PUT ") == 0 ||
+                command.find("DELETE ") == 0 || command.find("INFO ") == 0) {
+                receiveServerMessage();
             }
         }
     }
