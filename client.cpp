@@ -2,6 +2,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <arpa/inet.h>
+using namespace std;
 
 int main() {
     // Client configuration
@@ -26,18 +27,45 @@ int main() {
         close(clientSocket);
         return 1;
     }
+    cout << "Available commands:\n- GET <filename>\n- LIST\n- PUT <filename>\n- DELETE <filename>\n- INFO <filename>" << endl;
 
-    // Send data to the server
-    const char* message = "Hello, server! How are you?";
-    send(clientSocket, message, strlen(message), 0);
+    while (true) {
+        string command;
+        cout << "Enter a command: ";
+        getline(cin, command);
 
-    // Receive the response from the server
-    char buffer[1024];
-    memset(buffer, 0, sizeof(buffer)); // Initialize buffer with zeros
-    ssize_t bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
-    if (bytesReceived > 0) {
-        std::cout << "Received from server: " << buffer << std::endl;
+        if (command == "exit") {
+            break;
+        }
+
+        // Send command to the server
+        send(clientSocket, command.c_str(), command.size(), 0);
+
+        if (command.find("GET ") == 0) {
+            char fileMessage[4096];
+            memset(fileMessage, 0, sizeof(fileMessage));
+            ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
+            if (bytes> 0) {
+                cout << fileMessage << endl;
+            }
+        } else if (command == "LIST") {
+            char listMessage[4096];
+            memset(listMessage, 0, sizeof(listMessage));
+            ssize_t bytes = recv(clientSocket, listMessage, sizeof(listMessage), 0);
+            if (bytes > 0) {
+                cout << "A list of files in the server directory:" << listMessage << endl;
+            }
+        } else if (command.find("PUT ") == 0) {
+            char fileMessage[4096];
+            memset(fileMessage, 0, sizeof(fileMessage));
+            ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
+            if (bytes> 0) {
+                cout << fileMessage << endl;
+            }
+        }
     }
+
+
 
     // Clean up
     close(clientSocket);

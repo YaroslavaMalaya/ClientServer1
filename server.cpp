@@ -2,6 +2,9 @@
 #include <cstring>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <fstream>
+#include <dirent.h>
+
 
 int main() {
     // Server configuration
@@ -48,17 +51,55 @@ int main() {
 
     std::cout << "Accepted connection from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << std::endl;
 
-    // Receive data from the client
-    char buffer[1024];
-    memset(buffer, 0, 1024);
+    while (true) {
+        char commandBuffer[1024];
+        memset(commandBuffer, 0, sizeof(commandBuffer));
+        ssize_t receivedCommand = recv(clientSocket, commandBuffer, sizeof(commandBuffer), 0);
 
-    ssize_t bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
-    if (bytesReceived > 0) {
-        std::cout << "Received data: " << buffer << std::endl;
+        if (receivedCommand > 0) {
+            std::string command(commandBuffer);
 
-        // Send a response back to the client
-        const char* response = "Hello, client! This is the server.";
-        send(clientSocket, response, strlen(response), 0);
+            if (command.find("GET ") == 0) {
+                std::string filename = command.substr(4);
+                std::string filePath = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/" + filename;
+                std::ifstream file(filePath, std::ios::binary);
+
+                if (file.is_open()) {
+                    const char *message = "File was opened successfully.";
+                    send(clientSocket, message, strlen(message), 0);
+                } else {
+                    std::cout << "Failed to open file '" << filePath << std::endl;
+                    const char *message = "File not found or cannot be opened.";
+                    send(clientSocket, message, strlen(message), 0);
+                }
+            } else if (command == "LIST") {
+                std::string fileList;
+                std::string directoryPath = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files";
+
+                for (const auto& files : std::__fs::filesystem::directory_iterator(directoryPath)) {
+                    if (!files.is_directory()){
+                        fileList += files.path().filename().string();
+                        fileList += "\n";
+                    }
+                }
+                send(clientSocket, fileList.c_str(), fileList.size(), 0);
+            } else if (command.find("PUT ") == 0) {
+                std::string filename = command.substr(4);
+                std::string filePath = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/" + filename;
+                std::ofstream newFile(filePath, std::ios::binary);
+
+                if (newFile.is_open()) {
+                    const char *confirmMessage = "File uploaded successfully.";
+                    send(clientSocket, confirmMessage, strlen(confirmMessage), 0);
+                } else {
+                    const char *errorMessage = "Error creating file on server.";
+                    send(clientSocket, errorMessage, strlen(errorMessage), 0);
+                }
+            }
+        } else {
+            perror("Received failed");
+            break;
+        }
     }
 
     // Clean up
