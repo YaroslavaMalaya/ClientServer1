@@ -27,14 +27,14 @@ int main() {
         close(clientSocket);
         return 1;
     }
-    cout << "Available commands:\n- GET <filename>\n- LIST\n- PUT <filename>\n- DELETE <filename>\n- INFO <filename>" << endl;
+    cout << "Available commands:\n- GET <filename>\n- LIST\n- PUT <filename>\n- DELETE <filename>\n- INFO <filename>\n- EXIT" << endl;
 
     while (true) {
         string command;
         cout << "Enter a command: ";
         getline(cin, command);
 
-        if (command == "exit") {
+        if (command == "EXIT") {
             break;
         }
 
@@ -56,6 +56,13 @@ int main() {
                 cout << "A list of files in the server directory:" << listMessage << endl;
             }
         } else if (command.find("PUT ") == 0) {
+            char fileMessage[4096];
+            memset(fileMessage, 0, sizeof(fileMessage));
+            ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
+            if (bytes> 0) {
+                cout << fileMessage << endl;
+            }
+        } else if (command.find("DELETE ") == 0) {
             char fileMessage[4096];
             memset(fileMessage, 0, sizeof(fileMessage));
             ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);

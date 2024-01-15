@@ -65,12 +65,12 @@ int main() {
                 std::ifstream file(filePath, std::ios::binary);
 
                 if (file.is_open()) {
-                    const char *message = "File was opened successfully.";
-                    send(clientSocket, message, strlen(message), 0);
+                    const char *confirm = "File was opened successfully.";
+                    send(clientSocket, confirm, strlen(confirm), 0);
                 } else {
                     std::cout << "Failed to open file '" << filePath << std::endl;
-                    const char *message = "File not found or cannot be opened.";
-                    send(clientSocket, message, strlen(message), 0);
+                    const char *error = "File not found or cannot be opened.";
+                    send(clientSocket, error, strlen(error), 0);
                 }
             } else if (command == "LIST") {
                 std::string fileList;
@@ -89,11 +89,22 @@ int main() {
                 std::ofstream newFile(filePath, std::ios::binary);
 
                 if (newFile.is_open()) {
-                    const char *confirmMessage = "File uploaded successfully.";
-                    send(clientSocket, confirmMessage, strlen(confirmMessage), 0);
+                    const char *confirm = "File uploaded successfully.";
+                    send(clientSocket, confirm, strlen(confirm), 0);
                 } else {
-                    const char *errorMessage = "Error creating file on server.";
-                    send(clientSocket, errorMessage, strlen(errorMessage), 0);
+                    const char *error = "Error creating file on server.";
+                    send(clientSocket, error, strlen(error), 0);
+                }
+            } else if (command.find("DELETE ") == 0) {
+                std::string filename = command.substr(7);
+                std::string filePath = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/" + filename;
+
+                if (std::__fs::filesystem::remove(filePath)) {
+                    const char *confirm = "File was deleted successfully.";
+                    send(clientSocket, confirm, strlen(confirm), 0);
+                } else {
+                    const char *error = "The file cannot be deleted.";
+                    send(clientSocket, error, strlen(error), 0);
                 }
             }
         } else {
