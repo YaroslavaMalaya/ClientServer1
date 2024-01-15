@@ -40,7 +40,7 @@ public:
         }
     }
 
-    void comman ds() const{
+    void commands() const{
         cout << "Available commands:\n- GET <filename>\n- LIST\n- PUT <filename>\n- DELETE <filename>\n- INFO <filename>\n- EXIT" << endl;
 
         while (true) {

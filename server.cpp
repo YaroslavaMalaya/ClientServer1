@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <fstream>
-#include <dirent.h>
 #include <sys/stat.h>
 #include <sstream>
 
@@ -37,14 +36,16 @@ private:
 
     void getCommand(std::string  &command){
         std::string filename = command.substr(4);
-        std::string filePath = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/" + filename;
-        std::ifstream file(filePath, std::ios::binary);
+        std::string filePathClient = "/Users/Yarrochka/Mine/Study/KCT/lesson1/clientfiles/" + filename;
+        std::string filePathServer = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/" + filename;
+        std::ofstream file(filePathClient, std::ios::binary);
 
         if (file.is_open()) {
-            const char *confirm = "File was opened successfully.";
+            std::__fs::filesystem::copy_file(filePathServer, filePathClient, std::__fs::filesystem::copy_options::overwrite_existing);
+            const char *confirm = "File was opened and saved successfully.";
             send(clientSocket, confirm, strlen(confirm), 0);
         } else {
-            std::cout << "Failed to open file '" << filePath << std::endl;
+            std::cout << "Failed to open file '" << filePathServer << std::endl;
             const char *error = "File not found or cannot be opened.";
             send(clientSocket, error, strlen(error), 0);
         }
