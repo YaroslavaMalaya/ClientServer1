@@ -6,7 +6,6 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sstream>
-#include <iomanip>
 
 int main() {
     // Server configuration
@@ -86,15 +85,17 @@ int main() {
                 }
                 send(clientSocket, fileList.c_str(), fileList.size(), 0);
             } else if (command.find("PUT ") == 0) {
-                std::string filePathFrom = command.substr(4);
-                std::string filePath = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/";
-                std::ofstream newFile(filePath, std::ios::binary);
+                std::string filename = command.substr(4);
+                std::string filePathClient = "/Users/Yarrochka/Mine/Study/KCT/lesson1/clientfiles/" + filename;
+                std::string filePathServer = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/" + filename;
+                std::ofstream newFile(filePathServer, std::ios::binary);
+                std::__fs::filesystem::copy_file(filePathClient, filePathServer, std::__fs::filesystem::copy_options::overwrite_existing);
 
                 if (newFile.is_open()) {
                     const char *confirm = "File uploaded successfully.";
                     send(clientSocket, confirm, strlen(confirm), 0);
                 } else {
-                    const char *error = "Error creating file on server.";
+                    const char *error = "Error uploaded file on server.";
                     send(clientSocket, error, strlen(error), 0);
                 }
             } else if (command.find("DELETE ") == 0) {
