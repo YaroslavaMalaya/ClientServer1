@@ -42,28 +42,35 @@ int main() {
         send(clientSocket, command.c_str(), command.size(), 0);
 
         if (command.find("GET ") == 0) {
-            char fileMessage[4096];
+            char fileMessage[1024];
             memset(fileMessage, 0, sizeof(fileMessage));
             ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
             if (bytes> 0) {
                 cout << fileMessage << endl;
             }
         } else if (command == "LIST") {
-            char listMessage[4096];
+            char listMessage[1024];
             memset(listMessage, 0, sizeof(listMessage));
             ssize_t bytes = recv(clientSocket, listMessage, sizeof(listMessage), 0);
             if (bytes > 0) {
                 cout << "A list of files in the server directory:" << listMessage << endl;
             }
         } else if (command.find("PUT ") == 0) {
-            char fileMessage[4096];
+            char fileMessage[1024];
             memset(fileMessage, 0, sizeof(fileMessage));
             ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
             if (bytes> 0) {
                 cout << fileMessage << endl;
             }
         } else if (command.find("DELETE ") == 0) {
-            char fileMessage[4096];
+            char fileMessage[1024];
+            memset(fileMessage, 0, sizeof(fileMessage));
+            ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
+            if (bytes> 0) {
+                cout << fileMessage << endl;
+            }
+        } else if (command.find("INFO ") == 0) {
+            char fileMessage[1024];
             memset(fileMessage, 0, sizeof(fileMessage));
             ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
             if (bytes> 0) {
@@ -71,8 +78,6 @@ int main() {
             }
         }
     }
-
-
 
     // Clean up
     close(clientSocket);

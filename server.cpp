@@ -4,7 +4,9 @@
 #include <arpa/inet.h>
 #include <fstream>
 #include <dirent.h>
-
+#include <sys/stat.h>
+#include <sstream>
+#include <iomanip>
 
 int main() {
     // Server configuration
@@ -84,8 +86,8 @@ int main() {
                 }
                 send(clientSocket, fileList.c_str(), fileList.size(), 0);
             } else if (command.find("PUT ") == 0) {
-                std::string filename = command.substr(4);
-                std::string filePath = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/" + filename;
+                std::string filePathFrom = command.substr(4);
+                std::string filePath = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/";
                 std::ofstream newFile(filePath, std::ios::binary);
 
                 if (newFile.is_open()) {
@@ -105,6 +107,25 @@ int main() {
                 } else {
                     const char *error = "The file cannot be deleted.";
                     send(clientSocket, error, strlen(error), 0);
+                }
+            } else if (command.find("INFO ") == 0) {
+                std::string filename = command.substr(5);
+                std::string filePath = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/" + filename;
+                struct stat fileInfo;
+
+                if (stat(filePath.c_str(), &fileInfo) != 0) {
+                    std::cerr << "Error: " << strerror(errno) << std::endl;
+                    const char *error = "Info cannot be obtained.";
+                    send(clientSocket, error, strlen(error), 0);
+                } else {
+                    std::ostringstream information;
+                    information << "Info.\n"
+                               << "Size: " << fileInfo.st_size << "\n"
+                               << "Created: " << std::asctime(std::localtime(&fileInfo.st_ctime))
+                               << "Modified: " << std::asctime(std::localtime(&fileInfo.st_mtime));
+                    std::string info = information.str();
+
+                    send(clientSocket, info.c_str(), info.size(), 0);
                 }
             }
         } else {
