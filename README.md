@@ -1,5 +1,5 @@
 # General information
-This code represents a simple client-server application over TCP where the server can transfer files to the client.
+This code is written in C++. It represents a simple client-server application over TCP where the server can transfer files to the client.
 The functionality provides 5 commands to facilitate communication between the client and the server.
 
 Protocol Type: TCP (Transmission Control Protocol)\
@@ -40,7 +40,7 @@ Command Processing: Parses commands received from the client and calls the appro
 File System Operations: Handles file operations using std::__fs::filesystem.\
 Response Sending: Sends responses back to the client using send().
 
-## Client side
+## Client Side
 Implementation\
 Socket Creation: Uses socket(AF_INET, SOCK_STREAM, 0) for TCP socket.\
 Connection: Connects to the server using connect().\
