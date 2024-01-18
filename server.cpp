@@ -34,22 +34,61 @@ private:
         }
     }
 
-    void getCommand(std::string  &command){
+//    void getCommand(std::string  &command){
+//        std::string filename = command.substr(4);
+//        std::string filePathClient = "/Users/Yarrochka/Mine/Study/KCT/lesson1/clientfiles/" + filename;
+//        std::string filePathServer = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/" + filename;
+//        std::ofstream file(filePathClient, std::ios::binary);
+//
+//        if (file.is_open()) {
+//            std::__fs::filesystem::copy_file(filePathServer, filePathClient, std::__fs::filesystem::copy_options::overwrite_existing);
+//            const char *confirm = "File was opened and saved successfully.";
+//            send(clientSocket, confirm, strlen(confirm), 0);
+//        } else {
+//            std::cout << "Failed to open file '" << filePathServer << std::endl;
+//            const char *error = "File not found or cannot be opened.";
+//            send(clientSocket, error, strlen(error), 0);
+//        }
+//    }
+
+    void getCommand(std::string &command) {
         std::string filename = command.substr(4);
-        std::string filePathClient = "/Users/Yarrochka/Mine/Study/KCT/lesson1/clientfiles/" + filename;
         std::string filePathServer = "/Users/Yarrochka/Mine/Study/KCT/lesson1/files/" + filename;
-        std::ofstream file(filePathClient, std::ios::binary);
+        std::string filePathClient = "/Users/Yarrochka/Mine/Study/KCT/lesson1/clientfiles/" + filename;
+        std::ifstream file(filePathServer, std::ios::binary | std::ios::ate); // pointer in the end of the file since we use ate
 
         if (file.is_open()) {
-            std::__fs::filesystem::copy_file(filePathServer, filePathClient, std::__fs::filesystem::copy_options::overwrite_existing);
+            std::ofstream outFile(filePathClient, std::ios::binary);
+
+            if (!outFile.is_open()) {
+                std::cerr << "Failed to open file '" << filePathClient << "' for writing." << std::endl;
+                const char *error = "File cannot be created.";
+                send(clientSocket, error, strlen(error), 0);
+                return;
+            }
+
+            std::streamsize fileSize = file.tellg();
+            file.seekg(0, std::ios::beg); // move pointer on beginning
+
+            // read and send the file in chunks
+            while (fileSize > 0) {
+                char buffer[1024];
+
+                file.read(buffer, sizeof(buffer)); // read 1024 bytes
+                std::streamsize bytes = file.gcount(); // the number of bytes that were last read from the file
+                fileSize -= bytes;
+                outFile.write(buffer, bytes);
+            }
+
             const char *confirm = "File was opened and saved successfully.";
             send(clientSocket, confirm, strlen(confirm), 0);
         } else {
-            std::cout << "Failed to open file '" << filePathServer << std::endl;
+            std::cerr << "Failed to open file '" << filePathServer << "'" << std::endl;
             const char *error = "File not found or cannot be opened.";
             send(clientSocket, error, strlen(error), 0);
         }
     }
+
 
     void listCommand(){
         std::string fileList = "A list of files in the server directory:\n";
