@@ -52,12 +52,13 @@ public:
                 break;
             }
 
-            // Send command to the server
             send(clientSocket, command.c_str(), command.size(), 0);
 
             if (command.find("GET ") == 0 || command == "LIST" || command.find("PUT ") == 0 ||
                 command.find("DELETE ") == 0 || command.find("INFO ") == 0) {
                 receiveServerMessage();
+            } else {
+                cout << "Unknown command. TRy again." << endl;
             }
         }
     }
