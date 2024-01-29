@@ -1,0 +1,10 @@
+In the realm of software development, the architecture of client-server systems forms the backbone of many applications, allowing distributed and collaborative functionalities.
+At its core, client-server architecture involves two distinct entities: the client, which initiates requests, and the server, which processes these requests and delivers responses.
+This communication between client and server is facilitated by a fundamental concept known as Inter-process Communication (IPC).
+Inter-process Communication (IPC):
+IPC refers to the set of mechanisms that allow processes to communicate and share data with each other.
+In the context of client-server programming, IPC becomes crucial for enabling seamless communication between the client and server components.
+IPC mechanisms can be categorized into various types, including message passing, shared memory, and sockets.
+Internet Protocol (IP) Overview:
+At the heart of network communication lies the Internet Protocol (IP), a fundamental protocol that governs the addressing and routing of data packets across a network.
+IP provides a standardized way for devices to communicate over the Internet, and it forms the basis for higher- level protocols like Transmission Control Protocol (TCP) and User Datagram Protocol (UDP).

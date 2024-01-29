@@ -35,6 +35,7 @@ public:
         ssize_t bytes = recv(clientSocket, fileMessage, sizeof(fileMessage), 0);
         if (bytes > 0) {
             cout << fileMessage << endl;
+
         } else {
             cerr << "Failed to receive message from server." << endl;
         }
@@ -63,6 +64,14 @@ public:
         }
     }
 
+    void sendClientName() const {
+        string clientName;
+        cout << "Enter your name to select a folder on the server: ";
+        getline(cin, clientName);
+        send(clientSocket, clientName.c_str(), clientName.size(), 0);
+    }
+
+
     ~Client() {
         close(clientSocket);
     }
@@ -71,6 +80,7 @@ public:
 
 int main() {
     Client newClient;
+    newClient.sendClientName();
     newClient.commands();
     return 0;
 }

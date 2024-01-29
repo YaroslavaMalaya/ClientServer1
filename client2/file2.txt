@@ -1,0 +1,2 @@
+At the heart of network communication lies the Internet Protocol (IP), a fundamental protocol that governs the
+addressing and routing of data packets across a network.
