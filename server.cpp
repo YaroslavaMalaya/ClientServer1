@@ -22,9 +22,7 @@ private:
             perror("Listen failed");
             close(serverSocket);
         } else {
-            m.lock();
             std::cout << "Server listening on port " << port << std::endl;
-            m.unlock();
 
             // Accept a client connection
             while (true) {
@@ -56,11 +54,11 @@ private:
             std::ofstream outFile(filePathClient, std::ios::binary);
 
             if (!outFile.is_open()) {
-                std::cerr << "Failed to open file '" << filePathClient << "' for writing." << std::endl;
-                const char *error = "File cannot be created.";
                 m.lock();
-                send(clientSocket, error, strlen(error), 0);
+                std::cerr << "Failed to open file '" << filePathClient << "' for writing." << std::endl;
                 m.unlock();
+                const char *error = "File cannot be created.";
+                send(clientSocket, error, strlen(error), 0);
                 return;
             }
 
@@ -70,7 +68,6 @@ private:
             // read and send the file in chunks
             while (fileSize > 0) {
                 char buffer[1024];
-
                 file.read(buffer, sizeof(buffer)); // read 1024 bytes
                 std::streamsize bytes = file.gcount(); // the number of bytes that were last read from the file
                 fileSize -= bytes;
@@ -78,21 +75,19 @@ private:
             }
 
             const char *confirm = "File was opened and saved successfully.";
-            m.lock();
             send(clientSocket, confirm, strlen(confirm), 0);
-            m.unlock();
         } else {
-            std::cerr << "Failed to open file '" << filePathServer << "'" << std::endl;
-            const char *error = "File not found or cannot be opened.";
             m.lock();
-            send(clientSocket, error, strlen(error), 0);
+            std::cerr << "Failed to open file '" << filePathServer << "'" << std::endl;
             m.unlock();
+            const char *error = "File not found or cannot be opened.";
+            send(clientSocket, error, strlen(error), 0);
         }
     }
 
     void listCommand(int clientSocket, const std::string& path1){
         std::string fileList = "A list of filesClient1 in the server directory:\n";
-        std::string directoryPath = path1;
+        const std::string& directoryPath = path1;
 
         for (const auto& files : std::__fs::filesystem::directory_iterator(directoryPath)) {
             if (!files.is_directory()){
@@ -100,9 +95,7 @@ private:
                 fileList += "\n";
             }
         }
-        m.lock();
         send(clientSocket, fileList.c_str(), fileList.size(), 0);
-        m.unlock();
     }
 
     void putCommand(std::string &command, int clientSocket, const std::string& path1, const std::string& path2){
@@ -115,11 +108,11 @@ private:
             std::ofstream outFile(filePathServer, std::ios::binary);
 
             if (!outFile.is_open()) {
-                std::cerr << "Failed to open file '" << filePathServer << "' for writing." << std::endl;
-                const char *error = "File cannot be created.";
                 m.lock();
-                send(clientSocket, error, strlen(error), 0);
+                std::cerr << "Failed to open file '" << filePathServer << "' for writing." << std::endl;
                 m.unlock();
+                const char *error = "File cannot be created.";
+                send(clientSocket, error, strlen(error), 0);
                 return;
             }
 
@@ -137,15 +130,13 @@ private:
             }
 
             const char *confirm = "File was opened and saved successfully.";
-            m.lock();
             send(clientSocket, confirm, strlen(confirm), 0);
-            m.unlock();
         } else {
             m.lock();
             std::cerr << "Failed to open file '" << filePathServer << "'" << std::endl;
+            m.unlock();
             const char *error = "File not found or cannot be opened.";
             send(clientSocket, error, strlen(error), 0);
-            m.unlock();
         }
     }
 
@@ -155,14 +146,10 @@ private:
 
         if (std::__fs::filesystem::remove(filePath)) {
             const char *confirm = "File was deleted successfully.";
-            m.lock();
             send(clientSocket, confirm, strlen(confirm), 0);
-            m.unlock();
         } else {
             const char *error = "The file cannot be deleted.";
-            m.lock();
             send(clientSocket, error, strlen(error), 0);
-            m.unlock();
         }
     }
 
@@ -172,11 +159,11 @@ private:
         struct stat fileInfo;
 
         if (stat(filePath.c_str(), &fileInfo) != 0) {
-            std::cerr << "Error: " << strerror(errno) << std::endl;
-            const char *error = "Info cannot be obtained.";
             m.lock();
-            send(clientSocket, error, strlen(error), 0);
+            std::cerr << "Error: " << strerror(errno) << std::endl;
             m.unlock();
+            const char *error = "Info cannot be obtained.";
+            send(clientSocket, error, strlen(error), 0);
         } else {
             std::ostringstream information;
             information << "Info.\n"
@@ -184,9 +171,7 @@ private:
                         << "Created: " << std::asctime(std::localtime(&fileInfo.st_ctime))
                         << "Modified: " << std::asctime(std::localtime(&fileInfo.st_mtime));
             std::string info = information.str();
-            m.lock();
             send(clientSocket, info.c_str(), info.size(), 0);
-            m.unlock();
         }
     }
 

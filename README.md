@@ -54,7 +54,3 @@ Command Order: The client always initiates the communication by sending a comman
 Data Transfer: For commands involving file transfers (GET, PUT), the server performs file system operations and sends a confirmation message.\
 Response Waiting: After sending a command, the client waits for the server's response before proceeding to the next command.\
 Clients Model: The server handles one client at a time. Multi-client handling is not implemented in this setup.
-
-##  File System Access
-Uses std::__fs::filesystem for file operations (C++17 feature).
-In that way the program can transfer not only txt files, but also others type of files.
