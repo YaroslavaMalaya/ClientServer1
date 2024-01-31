@@ -122,7 +122,6 @@ private:
             // read and send the file in chunks
             while (fileSize > 0) {
                 char buffer[1024];
-
                 file.read(buffer, sizeof(buffer)); // read 1024 bytes
                 std::streamsize bytes = file.gcount(); // the number of bytes that were last read from the file
                 fileSize -= bytes;

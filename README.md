@@ -1,14 +1,12 @@
 # General information
-This code is written in C++. It represents a simple client-server application over TCP where the server can transfer files to the client.
-The functionality provides 5 commands to facilitate communication between the client and the server.
+This code is written in C++. It represents a simple client-server application over TCP, where the server can handle 
+multiple client connections concurrently. The functionality provides 5 commands to facilitate communication between the client and the server.
 
 Protocol Type: TCP (Transmission Control Protocol)\
 Port: 12345\
 IP Address: localhost (127.0.0.1)\
 Commands: Text-based commands with specific keywords (GET, LIST, PUT, DELETE, INFO, EXIT)\
 Data Transfer Method: Binary\
-Server Files Directory: /Users/Yarrochka/Mine/Study/KCT/lesson1/files/\
-Client Files Directory: /Users/Yarrochka/Mine/Study/KCT/lesson1/clientfiles/
 
 ## Supported Commands
 - GET <filename>\
@@ -32,16 +30,21 @@ The client and server close their respective sockets.
 
 ## Server Side
 Implementation\
+The server uses threads to handle multiple client connections at the same time. 
+Each client connection is managed by a separate thread.
 Socket Creation: Uses socket(AF_INET, SOCK_STREAM, 0) for TCP socket.\
 Binding: Binds the socket to the specified port with bind().\
 Listening: Listens for connections using listen().\
-Accepting Connections: Accepts client connections with accept().\
+Accepting Connections: Accepts client connections with accept() (in the while for each client).\
 Command Processing: Parses commands received from the client and calls the appropriate function (getCommand, listCommand, etc.).\
 File System Operations: Handles file operations using std::__fs::filesystem.\
-Response Sending: Sends responses back to the client using send().
+Response Sending: Sends responses back to the client using send(). Here clientSocket should be provided, so the server knows in which client send the message.\
+Mutexes: Uses to ensure that when one thread is using a shared resource (<cout> in the application), other threads
+are prevented from accessing the same resource at the same time. This avoids data corruption.
 
 ## Client Side
 Implementation\
+At first, client should enter their name. This name is then used by the server to determine the corresponding client directory for file operations. \
 Socket Creation: Uses socket(AF_INET, SOCK_STREAM, 0) for TCP socket.\
 Connection: Connects to the server using connect().\
 Command Input: Takes user input for commands and sends them to the server using send().\
@@ -50,6 +53,7 @@ Looping for Commands: Continuously allows the user to input commands until EXIT 
 
 ## Server and Client Interaction
 Initialization: The server must be running before the client attempts to connect.\
+Thread: When the client connects, the server generates a new thread to handle client requests. This allows the server to manage multiple clients at the same time.\
 Command Order: The client always initiates the communication by sending a command. The server listens and responds accordingly.\
 Data Transfer: For commands involving file transfers (GET, PUT), the server performs file system operations and sends a confirmation message.\
 Response Waiting: After sending a command, the client waits for the server's response before proceeding to the next command.\
