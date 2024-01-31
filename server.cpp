@@ -50,6 +50,10 @@ private:
         std::string filePathClient = path2 + filename;
         std::ifstream file(filePathServer, std::ios::binary | std::ios::ate); // pointer in the end of the file since we use ate
 
+        m.lock();
+        std::cout << "GET request for '" << filename << "' from client " << clientSocket << std::endl;
+        m.unlock();
+
         if (file.is_open()) {
             std::ofstream outFile(filePathClient, std::ios::binary);
 
@@ -76,6 +80,10 @@ private:
 
             const char *confirm = "File was opened and saved successfully.";
             send(clientSocket, confirm, strlen(confirm), 0);
+
+            m.lock();
+            std::cout << "GET response sent to client " << clientSocket << std::endl;
+            m.unlock();
         } else {
             m.lock();
             std::cerr << "Failed to open file '" << filePathServer << "'" << std::endl;
@@ -89,6 +97,10 @@ private:
         std::string fileList = "A list of filesClient1 in the server directory:\n";
         const std::string& directoryPath = path1;
 
+        m.lock();
+        std::cout << "LIST request from client " << clientSocket << std::endl;
+        m.unlock();
+
         for (const auto& files : std::__fs::filesystem::directory_iterator(directoryPath)) {
             if (!files.is_directory()){
                 fileList += files.path().filename().string();
@@ -96,6 +108,10 @@ private:
             }
         }
         send(clientSocket, fileList.c_str(), fileList.size(), 0);
+
+        m.lock();
+        std::cout << "LIST response sent to client " << clientSocket << std::endl;
+        m.unlock();
     }
 
     void putCommand(std::string &command, int clientSocket, const std::string& path1, const std::string& path2){
@@ -103,6 +119,10 @@ private:
         std::string filePathServer = path1 + filename;
         std::string filePathClient = path2 + filename;
         std::ifstream file( filePathClient, std::ios::binary | std::ios::ate); // pointer in the end of the file since we use ate
+
+        m.lock();
+        std::cout << "PUT request for '" << filename << "' from client " << clientSocket << std::endl;
+        m.unlock();
 
         if (file.is_open()) {
             std::ofstream outFile(filePathServer, std::ios::binary);
@@ -130,6 +150,10 @@ private:
 
             const char *confirm = "File was opened and saved successfully.";
             send(clientSocket, confirm, strlen(confirm), 0);
+
+            m.lock();
+            std::cout << "PUT response sent to client " << clientSocket << std::endl;
+            m.unlock();
         } else {
             m.lock();
             std::cerr << "Failed to open file '" << filePathServer << "'" << std::endl;
@@ -143,9 +167,17 @@ private:
         std::string filename = command.substr(7);
         std::string filePath = path1 + filename;
 
+        m.lock();
+        std::cout << "DELETE request for '" << filename << "' from client " << clientSocket << std::endl;
+        m.unlock();
+
         if (std::__fs::filesystem::remove(filePath)) {
             const char *confirm = "File was deleted successfully.";
             send(clientSocket, confirm, strlen(confirm), 0);
+
+            m.lock();
+            std::cout << "DELETE response sent to client " << clientSocket << std::endl;
+            m.unlock();
         } else {
             const char *error = "The file cannot be deleted.";
             send(clientSocket, error, strlen(error), 0);
@@ -156,6 +188,10 @@ private:
         std::string filename = command.substr(5);
         std::string filePath = path1 + filename;
         struct stat fileInfo;
+
+        m.lock();
+        std::cout << "INFO request for '" << filename << "' from client " << clientSocket << std::endl;
+        m.unlock();
 
         if (stat(filePath.c_str(), &fileInfo) != 0) {
             m.lock();
@@ -171,6 +207,10 @@ private:
                         << "Modified: " << std::asctime(std::localtime(&fileInfo.st_mtime));
             std::string info = information.str();
             send(clientSocket, info.c_str(), info.size(), 0);
+
+            m.lock();
+            std::cout << "INFO response sent to client " << clientSocket << std::endl;
+            m.unlock();
         }
     }
 
