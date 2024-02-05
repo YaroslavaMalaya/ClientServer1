@@ -42,7 +42,7 @@ public:
     }
 
     void commands() const{
-        cout << "Available commands:\n- GET <filename>\n- LIST\n- PUT <filename>\n- DELETE <filename>\n- INFO <filename>\n- EXIT" << endl;
+        cout << "Available commands:\n- GET <filename>\n- LIST\n- PUT <filename>\n- DELETE <filename>\n- INFO <filename>\n- INFOC <filename>\n- EXIT" << endl;
 
         while (true) {
             string command;
@@ -54,6 +54,7 @@ public:
             }
 
             send(clientSocket, command.c_str(), command.size(), 0);
+            cout << command.size() << endl;
 
             if (command.find("GET ") == 0 || command == "LIST" || command.find("PUT ") == 0 ||
                 command.find("DELETE ") == 0 || command.find("INFO ") == 0) {

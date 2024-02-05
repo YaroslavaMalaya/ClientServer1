@@ -5,26 +5,34 @@ multiple client connections concurrently. The functionality provides 5 commands 
 Protocol Type: TCP (Transmission Control Protocol)\
 Port: 12345\
 IP Address: localhost (127.0.0.1)\
-Commands: Text-based commands with specific keywords (GET, LIST, PUT, DELETE, INFO, EXIT)\
+Commands: Text-based commands with specific keywords (GET, LIST, PUT, DELETE, INFO, EXIT). Each element(letter, sign, figure) in input is a char.\
 Data Transfer Method: Binary\
+Buffers and Chunks: no more than 1024 bytes\
+Char: 1 byte (since the code is written in C++)\
 
 ## Supported Commands
-- GET <filename>\
+- GET <'filename'>\
+Bytes: 4 bytes by command + size(filename) + 1 byte for \0\
 Client requests a file from the server.\
 Server copies the file from its directory to the client's directory.
 - LIST\
+Bytes: 5 bytes by command + 1 byte for \0
 Client requests a list of files in the server's directory.\
 Server sends the list of files to the client.
-- PUT <filename>\
+- PUT <'filename'>\
+Bytes: 4 bytes by command + size(filename) + 1 byte for \0\
 Client sends a file to the server.\
 Server saves the file in its directory.
-- DELETE <filename>\
+- DELETE <'filename'>\
+Bytes: 7 bytes by command + size(filename) + 1 byte for \0\
 Client requests deletion of a file on the server.\
 Server deletes the file if it exists.
-- INFO <filename>\
+- INFO <'filename'>\
+Bytes: 5 bytes by command + size(filename) + 1 byte for \0\
 Client requests information about a file on the server.\
 Server sends file size, creation, and modification times.
 - EXIT\
+Bytes: 5 bytes by command + size(filename) + 1 byte for \0\
 Client sends a command to terminate the connection.\
 The client and server close their respective sockets.
 
